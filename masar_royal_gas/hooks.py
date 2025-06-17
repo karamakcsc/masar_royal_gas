@@ -174,9 +174,10 @@ app_license = "mit"
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "masar_royal_gas.event.get_events"
-# }
+override_whitelisted_methods = {
+	"erpnext.controllers.item_variant.enqueue_multiple_variant_creation": "masar_royal_gas.override.item_variant.enqueue_multiple_variant_creation", 
+    "erpnext.controllers.item_variant.create_variant": "masar_royal_gas.override.item_variant.create_variant"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
@@ -242,3 +243,17 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+fixtures = [
+    {"dt": "Custom Field", "filters": [
+        [
+            "name", "in", [
+                "Supplier-custom_old_ref",
+                "Customer-custom_old_ref"
+            ]
+        ]
+    ]}
+]
+
+from erpnext.controllers import item_variant
+from masar_royal_gas.override import item_variant as item_variant_override
+item_variant.make_variant_item_code = item_variant_override.make_variant_item_code

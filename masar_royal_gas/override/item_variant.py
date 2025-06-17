@@ -100,7 +100,7 @@ def enqueue_multiple_variant_creation(item, args, use_template_image=False):
 		return create_multiple_variants(item, args, use_template_image)
 	else:
 		frappe.enqueue(
-			"masar_royal_gas.override.item.create_multiple_variants",
+			"masar_royal_gas.override.item_variant.create_multiple_variants",
 			item=item,
 			args=args,
 			use_template_image=use_template_image,

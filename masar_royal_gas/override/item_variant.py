@@ -42,7 +42,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
         brand = frappe.db.get_value("Item", template_item_code, "brand")
         if not brand:
             frappe.throw(_("Brand is not set for the template item: {0}").format(template_item_code))
-        values["Brand"] = brand
+        values["Brand"] = frappe.db.get_value("Brand", brand, "custom_abbr")
     missing = [k for k in attribute_order if k not in values]
     if missing:
         frappe.throw(_("Missing required attributes: {0}").format(", ".join(missing)))
@@ -87,7 +87,6 @@ def get_next_serial_for_item(brand_abbr):
 @frappe.whitelist()
 def enqueue_multiple_variant_creation(item, args, use_template_image=False):
 	use_template_image = frappe.parse_json(use_template_image)
-	# #There can be innumerable attribute combinations, enqueue
 	if isinstance(args, str):
 		variants = json.loads(args)
 	total_variants = 1

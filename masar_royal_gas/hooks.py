@@ -248,7 +248,8 @@ fixtures = [
         [
             "name", "in", [
                 "Supplier-custom_old_ref",
-                "Customer-custom_old_ref"
+                "Customer-custom_old_ref",
+                "Brand-custom_abbr"
             ]
         ]
     ]}

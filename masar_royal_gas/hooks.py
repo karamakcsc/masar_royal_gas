@@ -137,13 +137,11 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Item Group": {
+		"validate": "masar_royal_gas.custom.item_group.item_group.validate"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
@@ -249,7 +247,9 @@ fixtures = [
             "name", "in", [
                 "Supplier-custom_old_ref",
                 "Customer-custom_old_ref",
-                "Brand-custom_abbr"
+                "Brand-custom_abbreviation" , 
+                "Item Group-custom_is_finish_goods",
+                "Item Group-custom_abbr"
             ]
         ]
     ]}

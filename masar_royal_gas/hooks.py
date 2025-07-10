@@ -172,9 +172,9 @@ app_license = "mit"
 # Overriding Methods
 # ------------------------------
 #
-override_doctype_class = {
-    "Item": "masar_royal_gas.override.item.Item"
-}
+# override_doctype_class = {
+#     "Item": "masar_royal_gas.override.item.Item"
+# }
 
 override_whitelisted_methods = {
 	"erpnext.controllers.item_variant.enqueue_multiple_variant_creation": "masar_royal_gas.override.item_variant.enqueue_multiple_variant_creation", 

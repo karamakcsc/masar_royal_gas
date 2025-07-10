@@ -38,11 +38,11 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
                     values[attr.attribute] = cstr(attr.attribute_value)
                 else:
                     values[attr.attribute] = item_attribute[0].abbr
-        if "Brand" not in values:
-            brand = frappe.db.get_value("Item", template_item_code, "brand")
-            if not brand:
-                frappe.throw(_("Brand is not set for the template item: {0}").format(template_item_code))
-            values["Brand"] = frappe.db.get_value("Brand", brand, "custom_abbr")
+        # if "Brand" not in values:
+        #     brand = frappe.db.get_value("Item", template_item_code, "brand")
+        #     if not brand:
+        #         frappe.throw(_("Brand is not set for the template item: {0}").format(template_item_code))
+        #     values["Brand"] = frappe.db.get_value("Brand", brand, "custom_abbr")
         missing = [k for k in attribute_order if k not in values]
         if missing:
             frappe.throw(_("Missing required attributes: {0}").format(", ".join(missing)))
@@ -98,11 +98,11 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
                     values[attr.attribute] = cstr(attr.attribute_value)
                 else:
                     values[attr.attribute] = item_attribute[0].abbr
-        if "Brand" not in values:
-            brand = frappe.db.get_value("Item", template_item_code, "brand")
-            if not brand:
-                frappe.throw(_("Brand is not set for the template item: {0}").format(template_item_code))
-            values["Brand"] = frappe.db.get_value("Brand", brand, "custom_abbr") 
+        # if "Brand" not in values:
+        #     brand = frappe.db.get_value("Item", template_item_code, "brand")
+        #     if not brand:
+        #         frappe.throw(_("Brand is not set for the template item: {0}").format(template_item_code))
+        #     values["Brand"] = frappe.db.get_value("Brand", brand, "custom_abbr") 
         missing = [attr for attr in attribute_order if attr not in values]
         code_parts = group_abbrs
         serial = get_next_serial_for_item(group_abbrs[1])
@@ -145,25 +145,29 @@ def get_next_serial_for_item(brand_abbr):
 @frappe.whitelist()
 def enqueue_multiple_variant_creation(item, args, use_template_image=False):
 	use_template_image = frappe.parse_json(use_template_image)
+
 	if isinstance(args, str):
-		variants = json.loads(args)
+		args = json.loads(args)
+
 	total_variants = 1
-	for key in variants:
-		total_variants *= len(variants[key])
+	for key in args:
+		total_variants *= len(args[key])
+
 	if total_variants >= 600:
 		frappe.throw(_("Please do not create more than 500 items at a time"))
-		return
-	if total_variants < 10:
+
+	if total_variants < 50:
 		return create_multiple_variants(item, args, use_template_image)
 	else:
 		frappe.enqueue(
 			"masar_royal_gas.override.item_variant.create_multiple_variants",
 			item=item,
-			args=args,
+			args=json.dumps(args),  # must dump again for background processing
 			use_template_image=use_template_image,
 			now=frappe.flags.in_test,
 		)
 		return "queued"
+
 
 
 def create_multiple_variants(item, args, use_template_image=False):

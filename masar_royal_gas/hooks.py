@@ -137,11 +137,11 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-	"Item Group": {
-		"validate": "masar_royal_gas.custom.item_group.item_group.validate"
-	}
-}
+# doc_events = {
+	# "Item Group": {
+	# 	"validate": "masar_royal_gas.custom.item_group.item_group.validate"
+	# }
+# }
 
 # Scheduled Tasks
 # ---------------
@@ -172,6 +172,10 @@ doc_events = {
 # Overriding Methods
 # ------------------------------
 #
+override_doctype_class = {
+    "Item": "masar_royal_gas.override.item.Item"
+}
+
 override_whitelisted_methods = {
 	"erpnext.controllers.item_variant.enqueue_multiple_variant_creation": "masar_royal_gas.override.item_variant.enqueue_multiple_variant_creation", 
     "erpnext.controllers.item_variant.create_variant": "masar_royal_gas.override.item_variant.create_variant"
@@ -252,7 +256,20 @@ fixtures = [
                 "Item Group-custom_abbr"
             ]
         ]
-    ]}
+    ]},
+    {
+        "doctype": "Property Setter",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Item-item_code-reqd"
+                   
+                ]
+            ]
+        ]
+    }
 ]
 
 from erpnext.controllers import item_variant

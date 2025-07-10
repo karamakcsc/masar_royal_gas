@@ -57,7 +57,9 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
             code_parts.append(part)
         item_code_str = "-".join(code_parts)
         variant.item_code = item_code_str
-        variant.item_name = "{}-{}".format(template_item_name, item_code_str)
+        variant.item_name = item_code_str
+        if variant.has_variants:
+             variant.item_code = f"Temp-{item_code_str}"
     else: 
         item_groups = []
         current_group = frappe.db.get_value("Item", template_item_code, "item_group")
@@ -115,7 +117,9 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
             code_parts.append(val[:length].upper())
         item_code_str = "-".join(code_parts)
         variant.item_code = item_code_str
-        variant.item_name = f"{template_item_name}-{item_code_str}"
+        variant.item_name = f"{item_code_str}"
+        if variant.has_variants:
+             variant.item_code = f"Temp-{item_code_str}"
         
         
 def get_next_serial_for_item(brand_abbr):

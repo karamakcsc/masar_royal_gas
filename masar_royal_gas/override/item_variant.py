@@ -73,7 +73,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
                 frappe.throw(_("Abbreviation missing for Item Group: {}").format(group))
             group_abbrs.append(abbr) 
         attribute_order = {
-            "Brand": 5,
+            # "Brand": 5,
             "Size": 5,
             "Country": 5
         }
@@ -110,7 +110,7 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
         values["Serial"] = str(serial).zfill(3)
         if missing:
             frappe.throw(_("Missing attributes: {}").format(", ".join(missing)))
-        for attr in ["Brand", "Size", "Country"]:
+        for attr in ["Size", "Country"]:
             val = values.get(attr, "")
             length = attribute_order.get(attr, 5)
             code_parts.append(val[:length].upper())

@@ -6,7 +6,7 @@ class Item(ERPNextItem):
     def autoname(self):
         # Only apply to base items (not variant, not template)
         if self.variant_of:
-            frappe.msgprint("Skipping: This item is a variant.")
+            # frappe.msgprint("Skipping: This item is a variant.")
             return
 
         if self.has_variants:

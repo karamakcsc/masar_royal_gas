@@ -276,6 +276,6 @@ from erpnext.controllers import item_variant
 from masar_royal_gas.override import item_variant as item_variant_override
 item_variant.make_variant_item_code = item_variant_override.make_variant_item_code
 
-from erpnext.stock.doctype.item.item import Item
-from masar_royal_gas.override.item import _Item
-Item.autoname = _Item.autoname
+from erpnext.stock.doctype.item import item
+from masar_royal_gas.override import item as item_override
+item.Item.autoname = item_override._Item.autoname

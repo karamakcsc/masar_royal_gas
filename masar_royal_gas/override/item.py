@@ -33,7 +33,7 @@ class _Item(Document):
             if not abbr:
                 frappe.throw(_("Abbreviation missing for Item Group: {}").format(group))
             group_abbrs.append(abbr)
-
+        
         # Set item_code from abbreviations
         self.item_code = "-".join(group_abbrs).upper().strip()
         self.item_name = self.item_code

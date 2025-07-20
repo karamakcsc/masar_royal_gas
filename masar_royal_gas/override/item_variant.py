@@ -60,63 +60,91 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
         variant.item_name = item_code_str
 
     else: 
-        item_groups = []
-        current_group = frappe.db.get_value("Item", template_item_code, "item_group")
-        while current_group:
-            if current_group != 'All Item Groups':
-                item_groups.insert(0, current_group)
-            current_group = frappe.db.get_value("Item Group", current_group, "parent_item_group")
-        group_abbrs = []
-        for group in item_groups:
-            abbr = frappe.db.get_value("Item Group", group, "custom_abbr")
-            if not abbr:
-                frappe.throw(_("Abbreviation missing for Item Group: {}").format(group))
-            group_abbrs.append(abbr) 
-        attribute_order = {
-            # "Brand": 5,
-            "Size": 5,
-            "Country": 5
-        }
-        values = {}
+        if variant.item_code:
+            return
+
+        abbreviations = []
         for attr in variant.attributes:
-            if attr.attribute in attribute_order:
-                item_attribute = frappe.db.sql(
-                    """
-                    SELECT i.numeric_values, v.abbr
-                    FROM `tabItem Attribute` i
-                    LEFT JOIN `tabItem Attribute Value` v ON (i.name = v.parent)
-                    WHERE i.name = %(attribute)s
-                    AND (v.attribute_value = %(attribute_value)s OR i.numeric_values = 1)
-                    """,
-                    {"attribute": attr.attribute, "attribute_value": attr.attribute_value},
-                    as_dict=True,
-                )
+            item_attribute = frappe.db.sql(
+                """select i.numeric_values, v.abbr
+                from `tabItem Attribute` i left join `tabItem Attribute Value` v
+                    on (i.name=v.parent)
+                where i.name=%(attribute)s and (v.attribute_value=%(attribute_value)s or i.numeric_values = 1)""",
+                {"attribute": attr.attribute, "attribute_value": attr.attribute_value},
+                as_dict=True,
+            )
 
-                if not item_attribute:
-                    frappe.throw(_("Missing abbreviation or value for attribute: {0}").format(attr.attribute))
+            if not item_attribute:
+                continue
+                # frappe.throw(_('Invalid attribute {0} {1}').format(frappe.bold(attr.attribute),
+                # 	frappe.bold(attr.attribute_value)), title=_('Invalid Attribute'),
+                # 	exc=InvalidItemAttributeValueError)
 
-                if item_attribute[0].numeric_values:
-                    values[attr.attribute] = cstr(attr.attribute_value)
-                else:
-                    values[attr.attribute] = item_attribute[0].abbr
-        # if "Brand" not in values:
-        #     brand = frappe.db.get_value("Item", template_item_code, "brand")
-        #     if not brand:
-        #         frappe.throw(_("Brand is not set for the template item: {0}").format(template_item_code))
-        #     values["Brand"] = frappe.db.get_value("Brand", brand, "custom_abbr") 
-        missing = [attr for attr in attribute_order if attr not in values]
-        code_parts = group_abbrs
-        serial = get_next_serial_for_item(group_abbrs[1])
-        values["Serial"] = str(serial).zfill(3)
-        if missing:
-            frappe.throw(_("Missing attributes: {}").format(", ".join(missing)))
-        for attr in ["Size", "Country"]:
-            val = values.get(attr, "")
-            length = attribute_order.get(attr, 5)
-            code_parts.append(val[:length].upper())
-        item_code_str = "-".join(code_parts)
-        variant.item_code = item_code_str
-        variant.item_name = f"{item_code_str}"
+            abbr_or_value = (
+                cstr(attr.attribute_value) if item_attribute[0].numeric_values else item_attribute[0].abbr
+            )
+            abbreviations.append(abbr_or_value)
+
+        if abbreviations:
+            variant.item_code = "{}-{}".format(template_item_code, "-".join(abbreviations))
+            variant.item_name = "{}-{}".format(template_item_name, "-".join(abbreviations))
+        # item_groups = []
+        # current_group = frappe.db.get_value("Item", template_item_code, "item_group")
+        # while current_group:
+        #     if current_group != 'All Item Groups':
+        #         item_groups.insert(0, current_group)
+        #     current_group = frappe.db.get_value("Item Group", current_group, "parent_item_group")
+        # group_abbrs = []
+        # for group in item_groups:
+        #     abbr = frappe.db.get_value("Item Group", group, "custom_abbr")
+        #     if not abbr:
+        #         frappe.throw(_("Abbreviation missing for Item Group: {}").format(group))
+        #     group_abbrs.append(abbr) 
+        # attribute_order = {
+        #     # "Brand": 5,
+        #     "Size": 5,
+        #     "Country": 5
+        # }
+        # values = {}
+        # for attr in variant.attributes:
+        #     if attr.attribute in attribute_order:
+        #         item_attribute = frappe.db.sql(
+        #             """
+        #             SELECT i.numeric_values, v.abbr
+        #             FROM `tabItem Attribute` i
+        #             LEFT JOIN `tabItem Attribute Value` v ON (i.name = v.parent)
+        #             WHERE i.name = %(attribute)s
+        #             AND (v.attribute_value = %(attribute_value)s OR i.numeric_values = 1)
+        #             """,
+        #             {"attribute": attr.attribute, "attribute_value": attr.attribute_value},
+        #             as_dict=True,
+        #         )
+
+        #         if not item_attribute:
+        #             frappe.throw(_("Missing abbreviation or value for attribute: {0}").format(attr.attribute))
+
+        #         if item_attribute[0].numeric_values:
+        #             values[attr.attribute] = cstr(attr.attribute_value)
+        #         else:
+        #             values[attr.attribute] = item_attribute[0].abbr
+        # # if "Brand" not in values:
+        # #     brand = frappe.db.get_value("Item", template_item_code, "brand")
+        # #     if not brand:
+        # #         frappe.throw(_("Brand is not set for the template item: {0}").format(template_item_code))
+        # #     values["Brand"] = frappe.db.get_value("Brand", brand, "custom_abbr") 
+        # missing = [attr for attr in attribute_order if attr not in values]
+        # code_parts = group_abbrs
+        # serial = get_next_serial_for_item(group_abbrs[1])
+        # values["Serial"] = str(serial).zfill(3)
+        # if missing:
+        #     frappe.throw(_("Missing attributes: {}").format(", ".join(missing)))
+        # for attr in ["Size", "Country"]:
+        #     val = values.get(attr, "")
+        #     length = attribute_order.get(attr, 5)
+        #     code_parts.append(val[:length].upper())
+        # item_code_str = "-".join(code_parts)
+        # variant.item_code = item_code_str
+        # variant.item_name = f"{item_code_str}"
 
         
         

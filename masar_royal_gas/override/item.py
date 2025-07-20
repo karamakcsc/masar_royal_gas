@@ -1,8 +1,8 @@
 import frappe
 from frappe import _, scrub
-from erpnext.stock.doctype.item.item import Item as ERPNextItem
+from frappe import Document
 
-class Item(ERPNextItem):
+class _Item(Document):
     def autoname(self):
         # Only apply to base items (not variant, not template)
         if self.variant_of:

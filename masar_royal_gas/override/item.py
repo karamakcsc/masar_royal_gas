@@ -1,6 +1,6 @@
 import frappe
 from frappe import _, scrub
-from frappe import Document
+from frappe.model.document import Document
 
 class _Item(Document):
     def autoname(self):
